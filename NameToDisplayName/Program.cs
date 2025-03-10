@@ -39,38 +39,41 @@ doc.Load(libName);
 //return;
 
 
-
-switch(Menu.ShowMenu())
+do
 {
-    case MenuItem.Exit:
-        break;
-    case MenuItem.DispayName:
-        DisplayNameHandler();
-        break;
-    case MenuItem.NameById:
-        NameByIdHandler();
-        break;
-    case MenuItem.Usage:
-        UsingsHandler();
-        break;
-    case MenuItem.UsageTree:
-        UsingsTreeHandler();
-        break;
-    case MenuItem.Conditions:
-        ConditionsHandler();
-        break;
-    case MenuItem.Uses:
-        UsesHandler();
-        break;
-    case MenuItem.UsesTree:
-        UsesTreeHandler();
-        break;
-    case MenuItem.GetUniqNames:
-        GetUniqNamesHandler();
-        break;
-    default:
-        throw new Exception("Unknown menu type");
-}
+    switch(Menu.ShowMenu())
+    {
+        case MenuItem.Exit:
+            return;
+        case MenuItem.DispayName:
+            DisplayNameHandler();
+            break;
+        case MenuItem.NameById:
+            NameByIdHandler();
+            break;
+        case MenuItem.Usage:
+            UsingsHandler();
+            break;
+        case MenuItem.UsageTree:
+            UsingsTreeHandler();
+            break;
+        case MenuItem.Conditions:
+            ConditionsHandler();
+            break;
+        case MenuItem.Uses:
+            UsesHandler();
+            break;
+        case MenuItem.UsesTree:
+            UsesTreeHandler();
+            break;
+        case MenuItem.GetUniqNames:
+            GetUniqNamesHandler();
+            break;
+        default:
+            throw new Exception("Unknown menu type");
+    }
+} while (true);
+
 
 
 
@@ -131,6 +134,7 @@ void UsingsHandler()
     }
 }
 
+//IsDutyEnd->CantBeSplitDuty->(ActualGapAfterDutyActivity >= NextMinOnDutyCIAO)->MinOnDutyCIAO->MinOnDuty
 void UsingsTreeHandler()
 {
     Console.Write("Enter name to find: ");
@@ -154,7 +158,7 @@ void UsingsTreeHandler()
             Node workNode = treeHash.Where(x=>x.Name == el).FirstOrDefault();
                 if(workNode == null) throw new Exception("No work node for object:"+el);
 
-            var usages = XmlHelpers.GetUsagesNamesUniq(doc, el);
+            var usages = XmlHelpers.GetUsagesNamesUniq(doc, el, true);
             //Console.WriteLine("t1, usages:"+usages.Count);
             foreach(var n in usages.OrderBy(x=>x))
             {
@@ -288,21 +292,9 @@ void UsesTreeHandler()
 {
 
 
-
-
-
 //TBD
 //option to exclude fileds "_xxx_"
 //option to exclude NON calculators (which we don't have definitions)
-
-
-
-
-
-
-
-
-
 
 
 
