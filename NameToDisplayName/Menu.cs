@@ -31,6 +31,10 @@ namespace NameToDisplayName
         UsesTree,
         [Description("Get uniq names")]
         GetUniqNames,
+        [Description("Get Accumulate Indexes")]
+        GetAccIndexes,
+        [Description("Get All Accumulators")]
+        GetAllAccumulators,
     };
 
     public static class Menu

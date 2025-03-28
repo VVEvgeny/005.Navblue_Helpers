@@ -69,6 +69,12 @@ do
         case MenuItem.GetUniqNames:
             GetUniqNamesHandler();
             break;
+        case MenuItem.GetAccIndexes:
+            GetAccIndexesHandler();
+            break;
+        case MenuItem.GetAllAccumulators:
+            GetAllAccumulatorsHandler();
+            break;
         default:
             throw new Exception("Unknown menu type");
     }
@@ -423,6 +429,104 @@ void GetUniqNamesHandler()
     foreach(var n in hs.OrderBy(x=>x))
     {
         Console.WriteLine(n);
+    }
+}
+
+string GetAccumulateType(string type)
+{
+    switch(type)
+    {
+        case "0": 
+        case "1": 
+        case "2": 
+        case "3": 
+        case "4": 
+        case "5": 
+        case "6": 
+        case "7": 
+            return "Daily";
+        case "8": 
+            return "Monthly";
+        case "9": 
+            return "Quarterly";
+        case "10": 
+            return "Yearly";
+        case "11": 
+            return "Weekly";
+        case "12": 
+            return "Dates";
+        case "13": 
+            return "Hourly";
+        case "14": 
+            return "Calculation period";
+        case "15": 
+            return "Custom periods";
+    }
+    return "Daily"; //default value if not exist
+} 
+
+void GetAccIndexesHandler()
+{
+    Console.Write("Enter name/id to find: ");
+    var name_or_id = Console.ReadLine();
+
+    var id = xml.GetIdForName(doc, name_or_id);
+    if(string.IsNullOrEmpty(id))
+    {
+        var name = xml.GetNameForId(doc, name_or_id);
+        if(string.IsNullOrEmpty(name))
+        {
+            Console.WriteLine("Not found");
+            return;
+        }
+        Console.WriteLine("Name: "+name);
+        id = name_or_id;
+    }
+    else
+    {
+        Console.WriteLine("Id: "+id);
+    }
+
+    var displayName = xml.GetXXXForId(doc,"DisplayName", id);
+    Console.WriteLine("DisplayName: "+displayName);
+
+    var start = xml.GetXXXForId(doc, "AccumulateStartIndex" , id);
+    var end = xml.GetXXXForId(doc, "AccumulateEndIndex" , id);
+    var type = xml.GetXXXForId(doc, "AccumulateType" , id);
+
+    Console.WriteLine($"Indexes: {start}, {end}"+" type: "+GetAccumulateType(type));
+}
+
+void GetAllAccumulatorsHandler()
+{
+    var ret = new HashSet<XmlNode>();
+    xml.CollectNodes(doc.ChildNodes, ret, "AvxMimerDefiniton","Kind","7");//accumulators
+    
+    foreach(var n in ret)
+    {
+        var id = xml.FindNode(n.ChildNodes, "DefinitionId")!.InnerText;
+        var accName = xml.GetNameForId(doc,id);
+        var start = xml.GetXXXForId(doc, "AccumulateStartIndex" , id);
+        var end = xml.GetXXXForId(doc, "AccumulateEndIndex" , id);
+        var type = xml.GetXXXForId(doc, "AccumulateType" , id);
+        Console.Write(id+" "+accName);
+        
+        //+indexes
+        if(!(string.IsNullOrEmpty(start) && string.IsNullOrEmpty(end)))
+        {
+            Console.Write(" "
+            +(string.IsNullOrEmpty(start)?"":start)
+            +","
+            +(string.IsNullOrEmpty(end)?"":end));
+        }
+        Console.Write(" type:"+GetAccumulateType(type));
+
+        //+conditions
+        var cc = xml.ExtractCalculatorsFromCondition(xml.GetXXXForId(doc, "Formula", id));
+        if(cc.Count > 0)
+            Console.Write(" - " + string.Join(" ",cc));
+
+        Console.Write(Environment.NewLine);
     }
 }
 
