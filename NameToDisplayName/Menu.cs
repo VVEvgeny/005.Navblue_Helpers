@@ -17,21 +17,23 @@ namespace NameToDisplayName
         Exit = 0,
         [Description("Get display name by name")]
         DispayName,
+        [Description("Get name by display name")]
+        Name,
         [Description("Get name by Id")]
         NameById,
         [Description("Get usage by name")]
         Usage,
         [Description("Get usage tree (where it used)")]
         UsageTree,
-        [Description("Get conditions")]
+        [Description("Get conditions by name")]
         Conditions,
         [Description("Get uses by name (what it uses)")]
         Uses,
-        [Description("Get uses tree")]
+        [Description("Get uses tree by name")]
         UsesTree,
-        [Description("Get uniq names")]
+        [Description("Get uniq names by name")]
         GetUniqNames,
-        [Description("Get Accumulate Indexes")]
+        [Description("Get Accumulate Indexes by name/id")]
         GetAccIndexes,
         [Description("Get All Accumulators")]
         GetAllAccumulators,

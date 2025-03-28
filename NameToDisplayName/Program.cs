@@ -33,12 +33,6 @@ else
 XmlDocument doc = new XmlDocument();
 doc.Load(libName);
 
-
-
-//UsageHandler();
-//return;
-
-
 do
 {
     switch(Menu.ShowMenu())
@@ -47,6 +41,9 @@ do
             return;
         case MenuItem.DispayName:
             DisplayNameHandler();
+            break;
+        case MenuItem.Name:
+            NameHandler();
             break;
         case MenuItem.NameById:
             NameByIdHandler();
@@ -107,6 +104,18 @@ void DisplayNameHandler()
     Console.WriteLine("DisplayName: "+displayName);
 }
 
+void NameHandler()
+{
+    Console.Write("Enter display name to find: ");
+    var displayName = Console.ReadLine();
+
+    var id = xml.GetIdForDisplayName(doc, displayName);
+    Console.WriteLine("Id: "+id);
+
+    var name = xml.GetNameForId(doc, id);
+    Console.WriteLine("Name: "+name);
+}
+
 void UsingsHandler()
 {
     Console.Write("Enter name to find: ");
@@ -122,6 +131,12 @@ void UsingsHandler()
     }
 
     var usedNames = new HashSet<string>() { name };//exclude itself
+
+    if(uniq.Count == 0)
+    {
+        Console.WriteLine("No usage");
+        return;
+    }
 
     Console.WriteLine("Used in:");
     foreach(var node in uniq)

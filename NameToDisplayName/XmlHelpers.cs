@@ -106,6 +106,14 @@ namespace NameToDisplayName
             return string.Empty;
         }
 
+        public static string GetIdForDisplayName(XmlDocument doc, string name)
+        {
+            var node = FindNode(doc.ChildNodes, "AvxMimerDefinitionProperties", "PropertyName", "DisplayName","PropertyValue",name);
+            if(node != null)
+                return FindNode(node.ChildNodes, "DefinitionId")!.InnerText;
+            return string.Empty;
+        }
+
         public static string GetXXXForId(XmlDocument doc, string propertyName, string id)
         {
             var node = FindNode(doc.ChildNodes, "AvxMimerDefinitionProperties"
