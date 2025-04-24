@@ -474,7 +474,7 @@ string GetAccumulateType(string type)
             return "Hourly";
         case "14": 
             return "Calculation period";
-        case "15": 
+        case "16": 
             return "Custom periods";
     }
     return "Daily"; //default value if not exist
@@ -505,11 +505,14 @@ void GetAccIndexesHandler()
     var displayName = xml.GetXXXForId(doc,"DisplayName", id);
     Console.WriteLine("DisplayName: "+displayName);
 
-    var start = xml.GetXXXForId(doc, "AccumulateStartIndex" , id);
-    var end = xml.GetXXXForId(doc, "AccumulateEndIndex" , id);
     var type = xml.GetXXXForId(doc, "AccumulateType" , id);
+    var start_end = type != "16" 
+        ? ( xml.GetXXXForId(doc, "AccumulateStartIndex" , id) + ", "+xml.GetXXXForId(doc, "AccumulateEndIndex" , id))
+        : (xml.GetXXXForId(doc, "AccumulatePeriods" , id) //custom
+        );
 
-    Console.WriteLine($"Indexes: {start}, {end}"+" type: "+GetAccumulateType(type));
+    Console.WriteLine($"Type: "+GetAccumulateType(type));
+    Console.WriteLine($"Indexes: {start_end}");
 }
 
 void GetAllAccumulatorsHandler()
@@ -521,25 +524,23 @@ void GetAllAccumulatorsHandler()
     {
         var id = xml.FindNode(n.ChildNodes, "DefinitionId")!.InnerText;
         var accName = xml.GetNameForId(doc,id);
-        var start = xml.GetXXXForId(doc, "AccumulateStartIndex" , id);
-        var end = xml.GetXXXForId(doc, "AccumulateEndIndex" , id);
         var type = xml.GetXXXForId(doc, "AccumulateType" , id);
+        var start_end = type != "16" 
+        ? ( xml.GetXXXForId(doc, "AccumulateStartIndex" , id) + ", "+xml.GetXXXForId(doc, "AccumulateEndIndex" , id))
+        : (xml.GetXXXForId(doc, "AccumulatePeriods" , id) //custom
+        );
         Console.Write(id+" "+accName);
-        
-        //+indexes
-        if(!(string.IsNullOrEmpty(start) && string.IsNullOrEmpty(end)))
-        {
-            Console.Write(" "
-            +(string.IsNullOrEmpty(start)?"":start)
-            +","
-            +(string.IsNullOrEmpty(end)?"":end));
-        }
-        Console.Write(" type:"+GetAccumulateType(type));
 
         //+conditions
         var cc = xml.ExtractCalculatorsFromCondition(xml.GetXXXForId(doc, "Formula", id));
         if(cc.Count > 0)
-            Console.Write(" - " + string.Join(" ",cc));
+            Console.Write(" | " + string.Join(" ",cc));
+
+        Console.Write(" | "+GetAccumulateType(type));
+  
+        //+indexes
+        if(!string.IsNullOrEmpty(start_end) && start_end != ", ")
+            Console.Write(" |" + start_end+"|");
 
         Console.Write(Environment.NewLine);
     }
