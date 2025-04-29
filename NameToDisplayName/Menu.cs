@@ -37,6 +37,8 @@ namespace NameToDisplayName
         GetAccIndexes,
         [Description("Get All Accumulators")]
         GetAllAccumulators,
+        [Description("Get All Rules")]
+        GetAllRules,
     };
 
     public static class Menu

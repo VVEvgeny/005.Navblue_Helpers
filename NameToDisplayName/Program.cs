@@ -72,6 +72,9 @@ do
         case MenuItem.GetAllAccumulators:
             GetAllAccumulatorsHandler();
             break;
+        case MenuItem.GetAllRules:
+            GetAllRulesHandler();
+            break;
         default:
             throw new Exception("Unknown menu type");
     }
@@ -543,6 +546,24 @@ void GetAllAccumulatorsHandler()
             Console.Write(" |" + start_end+"|");
 
         Console.Write(Environment.NewLine);
+    }
+}
+
+void GetAllRulesHandler()
+{
+    var ret = new HashSet<XmlNode>();
+    xml.CollectNodes(doc.ChildNodes, ret, "AvxMimerDefiniton","Kind","3");//rules
+    
+    foreach(var n in ret)
+    {
+        var id = xml.FindNode(n.ChildNodes, "DefinitionId")!.InnerText;
+        var name = xml.GetNameForId(doc,id);
+        var displayName = xml.GetXXXForId(doc,"DisplayName", id);
+        var enabled = xml.GetXXXForId(doc,"Enabled", id);//No=2
+
+        Console.WriteLine(id + " " + name 
+        + (string.IsNullOrEmpty(displayName) ? "" : (" ("+displayName+")")) 
+        + (enabled == "2" ? " DISABLED" : ""));
     }
 }
 
