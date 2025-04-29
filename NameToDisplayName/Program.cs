@@ -559,11 +559,18 @@ void GetAllRulesHandler()
         var id = xml.FindNode(n.ChildNodes, "DefinitionId")!.InnerText;
         var name = xml.GetNameForId(doc,id);
         var displayName = xml.GetXXXForId(doc,"DisplayName", id);
+        var comment = xml.GetXXXForId(doc,"Comment", id);
         var enabled = xml.GetXXXForId(doc,"Enabled", id);//No=2
-
+/*
         Console.WriteLine(id + " " + name 
         + (string.IsNullOrEmpty(displayName) ? "" : (" ("+displayName+")")) 
         + (enabled == "2" ? " DISABLED" : ""));
+        */
+
+        Console.WriteLine((enabled == "2" ? "DISABLED " : "")
+        +(string.IsNullOrEmpty(displayName) ? name : displayName) 
+        +(string.IsNullOrEmpty(comment) ? "" : (" :"+comment)) 
+        );
     }
 }
 
