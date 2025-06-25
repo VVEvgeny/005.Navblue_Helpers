@@ -116,12 +116,18 @@ namespace NameToDisplayName
 
         public static string GetXXXForId(XmlDocument doc, string propertyName, string id)
         {
-            var node = FindNode(doc.ChildNodes, "AvxMimerDefinitionProperties"
-            ,"DefinitionId",id
-            ,"PropertyName",propertyName
-            );
+            var node = FindNode(doc.ChildNodes, "AvxMimerDefinitionProperties","DefinitionId",id,"PropertyName",propertyName);
             if(node != null)
                 return FindNode(node.ChildNodes, "PropertyValue")!.InnerText;
+            return "";
+        }
+
+        //object type 
+        public static string GetXXXBaseForId(XmlDocument doc, string propertyName, string id)
+        {
+            var node = FindNode(doc.ChildNodes, "AvxMimerDefiniton","DefinitionId",id);
+            if(node != null)
+                return FindNode(node.ChildNodes, propertyName)!.InnerText;
             return "";
         }
 

@@ -103,6 +103,9 @@ void DisplayNameHandler()
     var id = xml.GetIdForName(doc, name);
     Console.WriteLine("Id: "+id);
 
+    var type = xml.GetXXXBaseForId(doc, "Kind" , id);
+    Console.WriteLine($"Type: "+GetObjectType(type));
+
     var displayName = xml.GetXXXForId(doc,"DisplayName", id);
     Console.WriteLine("DisplayName: "+displayName);
 }
@@ -482,6 +485,38 @@ string GetAccumulateType(string type)
     }
     return "Daily"; //default value if not exist
 } 
+
+string GetObjectType(string type)
+{
+    switch(type)
+    {
+        case "0": 
+            return "Unknown";
+        case "1": 
+            return "Library";
+        case "2": 
+            return "Container";
+        case "3": 
+        case "4": 
+            return "Rule";
+        case "5": 
+        case "6": 
+            return "Calculator";
+        case "7": 
+            return "Accumulator";
+        case "8": 
+            return "DataTableInternal";
+        case "9": 
+            return "DataTableExternal";
+        case "10": 
+            return "BuildInField";
+        case "11": 
+            return "BuildInFunction";
+        case "12": 
+            return "CustomDefinedFunction";
+    }
+    return "Unknown";
+}
 
 void GetAccIndexesHandler()
 {
