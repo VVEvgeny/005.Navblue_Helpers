@@ -10,7 +10,7 @@ namespace NameToDisplayName
             Text = desc;
         }
     }
-    
+
     public enum MenuItem
     {
         [Description("Exit")]
@@ -39,6 +39,9 @@ namespace NameToDisplayName
         GetAllAccumulators,
         [Description("Get All Rules")]
         GetAllRules,
+        [Description("Get All Historical")]
+        GetAllHistorical,
+        
     };
 
     public static class Menu

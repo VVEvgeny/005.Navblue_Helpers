@@ -1,4 +1,5 @@
-﻿using System.Windows.Markup;
+﻿using System.Text;
+using System.Windows.Markup;
 using System.Xml;
 using NameToDisplayName;
 #pragma warning disable
@@ -75,6 +76,9 @@ do
         case MenuItem.GetAllRules:
             GetAllRulesHandler();
             break;
+        case MenuItem.GetAllHistorical:
+            GetAllHistoricalHandler();
+            break;
         default:
             throw new Exception("Unknown menu type");
     }
@@ -105,6 +109,9 @@ void DisplayNameHandler()
 
     var type = xml.GetXXXBaseForId(doc, "Kind" , id);
     Console.WriteLine($"Type: "+GetObjectType(type));
+
+    var flags = xml.GetXXXForId(doc, "Flags", id);
+    Console.WriteLine("Flags: "+getFlags(flags));
 
     var displayName = xml.GetXXXForId(doc,"DisplayName", id);
     Console.WriteLine("DisplayName: "+displayName);
@@ -609,6 +616,35 @@ void GetAllRulesHandler()
     }
 }
 
+void GetAllHistoricalHandler()
+{
+    var ret = new HashSet<XmlNode>();
+    xml.CollectNodes(doc.ChildNodes, ret, "AvxMimerDefiniton","Kind","5");//Calculator
+    
+    foreach(var n in ret)
+    {
+        var id = xml.FindNode(n.ChildNodes, "DefinitionId")!.InnerText;
+        var flags = xml.GetXXXForId(doc, "Flags", id);
+        if (string.IsNullOrEmpty(flags))
+            continue;
+        var e = (AvxMimerDefinitionFlags)int.Parse(flags);
+        if ((e & AvxMimerDefinitionFlags.Historical) == AvxMimerDefinitionFlags.Historical)
+        {
+            var name = xml.GetNameForId(doc, id);
+            //var displayName = xml.GetXXXForId(doc, "DisplayName", id);
+            //var comment = xml.GetXXXForId(doc, "Comment", id);
+            var enabled = xml.GetXXXForId(doc, "Enabled", id);//No=2
+
+            Console.WriteLine(name
+                //(enabled == "2" ? "DISABLED " : "")
+            //+ (string.IsNullOrEmpty(displayName) ? name : displayName)
+            //+ (string.IsNullOrEmpty(comment) ? "" : (" :" + comment))
+            );
+        }
+    }
+}
+
+
 void test()
 {
     var strs = new string[]{
@@ -628,9 +664,34 @@ void test()
     }
 }
 
+string getFlags(string f)
+{
+    var e = (AvxMimerDefinitionFlags)int.Parse(f);
+    var enums = Enum.GetValues(typeof(AvxMimerDefinitionFlags));
+    var list = new List<string>();
 
+    foreach (var v in enums)
+    {
+        if ((e & (AvxMimerDefinitionFlags)v) == (AvxMimerDefinitionFlags)v)
+            list.Add(v.ToString());
+    }
 
+    return list.Count == 0 ? string.Empty : string.Join(",",list);
+}
 
+enum AvxMimerDefinitionFlags
+{
+    //None = 0,
+    ExternalCache = 1,
+    AllPossibleResults = 1 << 1,
+    UpdateData = 1 << 3,
+    SplitAtMidnight = 1 << 4,
+    Merge_Results = 1 << 5,
+    OriginalExternalCacheItem = 1 << 6,
+    Historical = 1 << 7,
+    ExternalCacheDetailed = 1 << 8,
+}
 
+//bool bHistorical = (Flags & AvxMimerDefinitionFlags.Historical) == AvxMimerDefinitionFlags.Historical
 
 
