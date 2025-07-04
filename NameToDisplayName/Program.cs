@@ -111,7 +111,8 @@ void DisplayNameHandler()
     Console.WriteLine($"Type: "+GetObjectType(type));
 
     var flags = xml.GetXXXForId(doc, "Flags", id);
-    Console.WriteLine("Flags: "+getFlags(flags));
+    if(!string.IsNullOrEmpty(flags))
+        Console.WriteLine("Flags: "+getFlags(flags));
 
     var displayName = xml.GetXXXForId(doc,"DisplayName", id);
     Console.WriteLine("DisplayName: "+displayName);
