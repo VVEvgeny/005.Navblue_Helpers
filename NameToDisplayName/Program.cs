@@ -79,6 +79,9 @@ do
         case MenuItem.GetAllHistorical:
             GetAllHistoricalHandler();
             break;
+        case MenuItem.GetAllAccumulated:
+            GetAllAccumulatedHandler();
+            break;
         default:
             throw new Exception("Unknown menu type");
     }
@@ -645,6 +648,33 @@ void GetAllHistoricalHandler()
     }
 }
 
+void GetAllAccumulatedHandler()
+{
+    var ret = new HashSet<XmlNode>();
+    xml.CollectNodes(doc.ChildNodes, ret, "AvxMimerDefiniton","Kind","5");//Calculator
+    
+    foreach(var n in ret)
+    {
+        var id = xml.FindNode(n.ChildNodes, "DefinitionId")!.InnerText;
+        var flags = xml.GetXXXForId(doc, "Flags", id);
+        if (string.IsNullOrEmpty(flags))
+            continue;
+        var e = (AvxMimerDefinitionFlags)int.Parse(flags);
+        if ((e & AvxMimerDefinitionFlags.ExternalCache) == AvxMimerDefinitionFlags.ExternalCache)
+        {
+            var name = xml.GetNameForId(doc, id);
+            var displayName = xml.GetXXXForId(doc, "DisplayName", id);
+            var comment = xml.GetXXXForId(doc, "Comment", id);
+            //var enabled = xml.GetXXXForId(doc, "Enabled", id);//No=2
+
+            Console.WriteLine(name
+                //+(enabled == "2" ? "DISABLED " : "")
+                +(string.IsNullOrEmpty(displayName)?";":(";"+displayName))
+                +(string.IsNullOrEmpty(comment) ? ";" : (";" + comment))
+            );
+        }
+    }
+}
 
 void test()
 {

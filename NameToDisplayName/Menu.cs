@@ -41,7 +41,8 @@ namespace NameToDisplayName
         GetAllRules,
         [Description("Get All Historical")]
         GetAllHistorical,
-        
+        [Description("Get All Accumulated")]
+        GetAllAccumulated,
     };
 
     public static class Menu
