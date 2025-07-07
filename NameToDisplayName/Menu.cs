@@ -21,6 +21,8 @@ namespace NameToDisplayName
         Name,
         [Description("Get name by Id")]
         NameById,
+        [Description("Get book")]
+        GetBook,
         [Description("Get usage by name")]
         Usage,
         [Description("Get usage tree (where it used)")]
@@ -43,6 +45,8 @@ namespace NameToDisplayName
         GetAllHistorical,
         [Description("Get All Accumulated")]
         GetAllAccumulated,
+        [Description("Batch Get Books")]
+        BatchGetBooks,
     };
 
     public static class Menu

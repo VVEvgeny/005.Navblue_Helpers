@@ -82,6 +82,12 @@ do
         case MenuItem.GetAllAccumulated:
             GetAllAccumulatedHandler();
             break;
+        case MenuItem.GetBook:
+            GetBookHandler();
+            break;
+        case MenuItem.BatchGetBooks:
+            BatchGetBooksHandler();
+            break;
         default:
             throw new Exception("Unknown menu type");
     }
@@ -127,10 +133,105 @@ void NameHandler()
     var displayName = Console.ReadLine();
 
     var id = xml.GetIdForDisplayName(doc, displayName);
-    Console.WriteLine("Id: "+id);
+    Console.WriteLine("Id: " + id);
 
     var name = xml.GetNameForId(doc, id);
-    Console.WriteLine("Name: "+name);
+    Console.WriteLine("Name: " + name);
+}
+
+void GetBookHandler()
+{
+    Console.Write("Enter name to find: ");
+    var name = Console.ReadLine();
+    if (name.Contains(":"))
+    {
+        name = name.Substring(0, name.IndexOf(":"));
+        //Console.WriteLine("normal name: " + name);
+    }
+
+    var id = xml.GetIdForName(doc, name);
+    if (!string.IsNullOrEmpty(id))
+        Console.WriteLine("Id: " + id);
+
+    var parent = id;
+    while (true)
+    {
+        var type = xml.GetXXXBaseForId(doc, "Kind", parent);
+        //Console.WriteLine($"Type: " + GetObjectType(type));
+
+        if (GetObjectType(type) == "Unknown")
+        {
+            Console.WriteLine($"Container NOT found");
+            break;
+        }
+        if (GetObjectType(type) == "Container")
+        {
+            //if parent for our container is Library then return
+            var tmp = xml.GetXXXBaseForId(doc, "ParentId", parent);
+            var tmpType = xml.GetXXXBaseForId(doc, "Kind", tmp);
+            if (GetObjectType(tmpType) == "Library")
+            {
+                var parentName = xml.GetNameForId(doc, parent);
+                Console.WriteLine($"Container:{parentName}");
+                break;
+            }
+        }
+
+        //go to parent
+        parent = xml.GetXXXBaseForId(doc, "ParentId", parent);
+        //Console.WriteLine($"Parent: " + parent);
+    }
+}
+
+void BatchGetBooksHandler()
+{
+    Console.Write("Enter names to find: ");
+    string line;
+    var list = new List<string>();
+    while(!string.IsNullOrEmpty(line = Console.ReadLine()))
+    {
+        list.Add(line);
+    }
+    Console.WriteLine("Names to process:" + list.Count);
+
+    var results = new Dictionary<string, string>();
+
+    foreach (var l in list)
+    {
+        var name = l;
+        if (name.Contains(":"))
+            name = name.Substring(0, name.IndexOf(":"));
+
+        if (!results.ContainsKey(name))
+        {
+            var parent = xml.GetIdForName(doc, name);
+            while (true)
+            {
+                //Console.WriteLine("Search name:" + name+" id:"+parent);
+
+                var type = xml.GetXXXBaseForId(doc, "Kind", parent);
+                if (GetObjectType(type) == "Unknown")
+                {
+                    results.Add(name, "-");
+                    break;
+                }
+                if (GetObjectType(type) == "Container")
+                {
+                    //if parent for our container is Library then return
+                    var tmp = xml.GetXXXBaseForId(doc, "ParentId", parent);
+                    var tmpType = xml.GetXXXBaseForId(doc, "Kind", tmp);
+                    if (GetObjectType(tmpType) == "Library")
+                    {
+                        var parentName = xml.GetNameForId(doc, parent);
+                        results.Add(name, parentName);
+                        break;
+                    }
+                }
+                parent = xml.GetXXXBaseForId(doc, "ParentId", parent);
+            }
+        }
+        Console.WriteLine(results[name]);
+    }
 }
 
 void UsingsHandler()
