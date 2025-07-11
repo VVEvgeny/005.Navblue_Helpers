@@ -40,6 +40,9 @@ do
     {
         case MenuItem.Exit:
             return;
+        case MenuItem.GetEverything:
+            GetEverythingHandler();
+            break;
         case MenuItem.DispayName:
             DisplayNameHandler();
             break;
@@ -88,6 +91,9 @@ do
         case MenuItem.BatchGetBooks:
             BatchGetBooksHandler();
             break;
+        case MenuItem.BatchGetTypes:
+            BatchGetTypesHandler();
+            break;
         default:
             throw new Exception("Unknown menu type");
     }
@@ -108,6 +114,43 @@ void NameByIdHandler()
     Console.WriteLine("DisplayName: "+displayName);
 }
 
+void GetEverythingHandler()
+{
+    Console.Write("Enter name to find: ");
+    var name = Console.ReadLine();
+
+    var id = xml.GetIdForName(doc, name);
+    if (string.IsNullOrEmpty(id))
+    {
+        id = xml.GetIdForDisplayName(doc, name);
+        if (string.IsNullOrEmpty(id))
+        {
+            if (string.IsNullOrEmpty(xml.GetNameForId(doc, name)))
+            {
+                Console.WriteLine("Can't find");
+                return;
+            }
+            id = name;
+        }
+    }
+    Console.WriteLine("Id: " + id);
+
+    var type = xml.GetXXXBaseForId(doc, "Kind", id);
+    Console.WriteLine($"Type: " + GetObjectType(type));
+
+    var flags = xml.GetXXXForId(doc, "Flags", id);
+    if (!string.IsNullOrEmpty(flags))
+        Console.WriteLine("Flags: " + getFlags(flags));
+
+    var appliesTo = xml.GetXXXForId(doc, "AppliesTo", id);
+    if (!string.IsNullOrEmpty(appliesTo))
+        Console.WriteLine("Applies To: " + appliesTo);
+
+    var book = getBookById(id);
+    if (!string.IsNullOrEmpty(book))
+        Console.WriteLine("Container: " + book);
+}
+
 void DisplayNameHandler()
 {
     Console.Write("Enter name to find: ");
@@ -115,13 +158,6 @@ void DisplayNameHandler()
 
     var id = xml.GetIdForName(doc, name);
     Console.WriteLine("Id: "+id);
-
-    var type = xml.GetXXXBaseForId(doc, "Kind" , id);
-    Console.WriteLine($"Type: "+GetObjectType(type));
-
-    var flags = xml.GetXXXForId(doc, "Flags", id);
-    if(!string.IsNullOrEmpty(flags))
-        Console.WriteLine("Flags: "+getFlags(flags));
 
     var displayName = xml.GetXXXForId(doc,"DisplayName", id);
     Console.WriteLine("DisplayName: "+displayName);
@@ -139,6 +175,37 @@ void NameHandler()
     Console.WriteLine("Name: " + name);
 }
 
+string getBookById(string id)
+{
+    var parent = id;
+    while (true)
+    {
+        var type = xml.GetXXXBaseForId(doc, "Kind", parent);
+        //Console.WriteLine($"Type: " + GetObjectType(type));
+
+        if (GetObjectType(type) == "Unknown")
+        {
+            return "Container NOT found";
+        }
+        if (GetObjectType(type) == "Container")
+        {
+            //if parent for our container is Library then return
+            var tmp = xml.GetXXXBaseForId(doc, "ParentId", parent);
+            var tmpType = xml.GetXXXBaseForId(doc, "Kind", tmp);
+            if (GetObjectType(tmpType) == "Library")
+            {
+                var parentName = xml.GetNameForId(doc, parent);
+                return parentName;
+            }
+        }
+
+        //go to parent
+        parent = xml.GetXXXBaseForId(doc, "ParentId", parent);
+        //Console.WriteLine($"Parent: " + parent);
+    }
+    return string.Empty;
+}
+
 void GetBookHandler()
 {
     Console.Write("Enter name to find: ");
@@ -153,34 +220,7 @@ void GetBookHandler()
     if (!string.IsNullOrEmpty(id))
         Console.WriteLine("Id: " + id);
 
-    var parent = id;
-    while (true)
-    {
-        var type = xml.GetXXXBaseForId(doc, "Kind", parent);
-        //Console.WriteLine($"Type: " + GetObjectType(type));
-
-        if (GetObjectType(type) == "Unknown")
-        {
-            Console.WriteLine($"Container NOT found");
-            break;
-        }
-        if (GetObjectType(type) == "Container")
-        {
-            //if parent for our container is Library then return
-            var tmp = xml.GetXXXBaseForId(doc, "ParentId", parent);
-            var tmpType = xml.GetXXXBaseForId(doc, "Kind", tmp);
-            if (GetObjectType(tmpType) == "Library")
-            {
-                var parentName = xml.GetNameForId(doc, parent);
-                Console.WriteLine($"Container:{parentName}");
-                break;
-            }
-        }
-
-        //go to parent
-        parent = xml.GetXXXBaseForId(doc, "ParentId", parent);
-        //Console.WriteLine($"Parent: " + parent);
-    }
+    Console.WriteLine("Container:" + getBookById(id));
 }
 
 void BatchGetBooksHandler()
@@ -229,6 +269,35 @@ void BatchGetBooksHandler()
                 }
                 parent = xml.GetXXXBaseForId(doc, "ParentId", parent);
             }
+        }
+        Console.WriteLine(results[name]);
+    }
+}
+
+void BatchGetTypesHandler()
+{
+    Console.Write("Enter names to find: ");
+    string line;
+    var list = new List<string>();
+    while(!string.IsNullOrEmpty(line = Console.ReadLine()))
+    {
+        list.Add(line);
+    }
+    Console.WriteLine("Names to process:" + list.Count);
+
+    var results = new Dictionary<string, string>();
+
+    foreach (var l in list)
+    {
+        var name = l;
+        if (name.Contains(":"))
+            name = name.Substring(0, name.IndexOf(":"));
+
+        if (!results.ContainsKey(name))
+        {
+            var id = xml.GetIdForName(doc, name);
+            var type = xml.GetXXXBaseForId(doc, "Kind", id);
+            results.Add(name, GetObjectType(type));
         }
         Console.WriteLine(results[name]);
     }
@@ -766,12 +835,15 @@ void GetAllAccumulatedHandler()
             var name = xml.GetNameForId(doc, id);
             var displayName = xml.GetXXXForId(doc, "DisplayName", id);
             var comment = xml.GetXXXForId(doc, "Comment", id);
-            //var enabled = xml.GetXXXForId(doc, "Enabled", id);//No=2
+            var enabled = xml.GetXXXForId(doc, "Enabled", id);//No=2
 
-            Console.WriteLine(name
+
+            var appliesTo = xml.GetXXXForId(doc, "AppliesTo" , id);
+            Console.WriteLine(
+                //name
                 //+(enabled == "2" ? "DISABLED " : "")
-                +(string.IsNullOrEmpty(displayName)?";":(";"+displayName))
-                +(string.IsNullOrEmpty(comment) ? ";" : (";" + comment))
+                //+(string.IsNullOrEmpty(displayName)?" ":(";"+displayName))+";"+appliesTo
+                //+(string.IsNullOrEmpty(comment) ? ";" : (";" + comment))
             );
         }
     }

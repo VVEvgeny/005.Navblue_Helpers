@@ -15,6 +15,8 @@ namespace NameToDisplayName
     {
         [Description("Exit")]
         Exit = 0,
+        [Description("Get everything")]
+        GetEverything,
         [Description("Get display name by name")]
         DispayName,
         [Description("Get name by display name")]
@@ -47,6 +49,8 @@ namespace NameToDisplayName
         GetAllAccumulated,
         [Description("Batch Get Books")]
         BatchGetBooks,
+        [Description("Batch Get Types")]
+        BatchGetTypes,
     };
 
     public static class Menu
