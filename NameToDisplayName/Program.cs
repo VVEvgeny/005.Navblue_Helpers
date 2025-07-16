@@ -148,7 +148,19 @@ void GetEverythingHandler()
 
     var book = getBookById(id);
     if (!string.IsNullOrEmpty(book))
-        Console.WriteLine("Container: " + book);
+    {
+        var bookId = xml.GetIdForName(doc, book);
+        var bookDisplayName = xml.GetXXXForId(doc, "DisplayName", bookId);
+        Console.WriteLine("Container: " + book + (string.IsNullOrEmpty(bookDisplayName) ? "" : (" (" + bookDisplayName + ")")));
+
+        var path = getPathById(id);
+        if (!string.IsNullOrEmpty(path))
+        {
+            var pathD = getPathById(id, true);
+            Console.WriteLine("Path: " + path + (path == pathD ? "" : (" ("+pathD+")")));
+        }
+    }
+        
 }
 
 void DisplayNameHandler()
@@ -173,6 +185,42 @@ void NameHandler()
 
     var name = xml.GetNameForId(doc, id);
     Console.WriteLine("Name: " + name);
+}
+
+string getPathById(string id, bool displayName = false)
+{
+    var sb = new StringBuilder();
+
+    var parent = id;
+    while (true)
+    {
+        var type = xml.GetXXXBaseForId(doc, "Kind", parent);
+        if (GetObjectType(type) == "Unknown")
+        {
+            return "Container NOT found";
+        }
+        if (GetObjectType(type) == "Container")
+        {
+            //if parent for our container is Library then return
+            var tmp = xml.GetXXXBaseForId(doc, "ParentId", parent);
+            var tmpType = xml.GetXXXBaseForId(doc, "Kind", tmp);
+            if (GetObjectType(tmpType) == "Library")
+            {
+                var parentName = xml.GetNameForId(doc, parent);
+                return sb.ToString();
+            }
+        }
+
+        //go to parent
+        parent = xml.GetXXXBaseForId(doc, "ParentId", parent);
+        //Console.WriteLine($"Parent: " + parent);
+
+        if (displayName)
+            sb.Insert(0, xml.GetXXXForId(doc,"DisplayName", parent) + (sb.Length == 0 ? "" : "->"));
+        else
+            sb.Insert(0, xml.GetNameForId(doc, parent)+(sb.Length == 0 ? "" : "->"));
+    }
+    return string.Empty;
 }
 
 string getBookById(string id)
