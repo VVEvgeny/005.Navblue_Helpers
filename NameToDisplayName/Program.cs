@@ -151,7 +151,9 @@ void GetEverythingHandler()
     {
         var bookId = xml.GetIdForName(doc, book);
         var bookDisplayName = xml.GetXXXForId(doc, "DisplayName", bookId);
-        Console.WriteLine("Container: " + book + (string.IsNullOrEmpty(bookDisplayName) ? "" : (" (" + bookDisplayName + ")")));
+        Console.WriteLine("Container: " + book
+            + (string.IsNullOrEmpty(bookDisplayName) ? "" : (" (" + bookDisplayName + ")"))
+        );
 
         var path = getPathById(id);
         if (!string.IsNullOrEmpty(path))
@@ -223,6 +225,50 @@ string getPathById(string id, bool displayName = false)
     return string.Empty;
 }
 
+string bookPretify(string name)
+{
+    switch (name)
+    {
+        case "EASA_FTL":
+            return "EASA";
+        case "FarCommon":
+            return "FAR Common";
+        case "Far121S":
+            return "FAR 121 S";
+        case "Far121p_FTL":
+            return "FAR 121 P";
+        case "Far121Q":
+            return "FAR 121 Q";
+        case "FAR 121 SubpartQ":
+            return "FAR 121 Subpart Q";
+        case "Far121R":
+            return "FAR 121 R";
+        case "Far121o_FTL":
+            return "FAR 121 O";
+        case "Far91_FTL":
+            return "FAR 91";
+        case "Far117_FTL":
+            return "FAR 117";
+        case "Far135MainContainer":
+            return "FAR 135";
+        case "LATT_MOT":
+            return "LATT/MOT";
+
+        case "AveloAir_CompanyRules":
+            return "VXP Company Rules";
+        case "GlobalXRulesContainer":
+            return "GXA Company Rules";
+        case "JUS_CompanyRules":
+            return "JUS Company Rules";
+        case "RPA_CompanyRules":
+            return "RPA Company Rules";
+        case "BreezeRules":
+            return "MXY Company Rules";
+    }
+
+    return name;
+}
+
 string getBookById(string id)
 {
     var parent = id;
@@ -243,7 +289,7 @@ string getBookById(string id)
             if (GetObjectType(tmpType) == "Library")
             {
                 var parentName = xml.GetNameForId(doc, parent);
-                return parentName;
+                return bookPretify(parentName);
             }
         }
 
@@ -268,7 +314,7 @@ void GetBookHandler()
     if (!string.IsNullOrEmpty(id))
         Console.WriteLine("Id: " + id);
 
-    Console.WriteLine("Container:" + getBookById(id));
+    Console.WriteLine("Container:" + bookPretify(getBookById(id)));
 }
 
 void BatchGetBooksHandler()
