@@ -340,15 +340,6 @@ namespace NameToDisplayName
             string intendEmpty = "  ";
             bool skipIfShown = false;
 
-            //temp
-            /*
-            skipIfShown = true;
-            intendLast ="  ";
-            intendMid ="  ";
-            intendSkip ="  ";
-            intendEmpty = "  ";
-            */
-
             if(level>= maxDeepLevel && tree.Children.Count > 0)
             {
                 string linked=$"->(it goes deeper than:{maxDeepLevel})";

@@ -58,6 +58,9 @@ do
         case MenuItem.UsageTree:
             UsingsTreeHandler();
             break;
+        case MenuItem.UsageTreeRules:
+            UsageTreeRulesHandler();
+            break;
         case MenuItem.Conditions:
             ConditionsHandler();
             break;
@@ -489,6 +492,67 @@ void UsingsTreeHandler()
             Console.WriteLine("No usage");
         else
             xml.PrintTree(tree, 0, int.MaxValue, true);
+}
+
+void UsageTreeRulesHandler()
+{
+    Console.Write("Enter name to find: ");
+    var name = Console.ReadLine();
+
+    var q = new Queue<string>();
+    q.Enqueue(name);
+
+    var used = new HashSet<string>();
+
+    var tree = new Node(name);
+    var treeHash = new HashSet<Node>();
+    treeHash.Add(tree);
+
+    int cnt = 0;
+    while(q.Count > 0)
+    {
+        var el = q.Dequeue();
+
+        Node workNode = treeHash.Where(x=>x.Name == el).FirstOrDefault();
+        if(workNode == null) throw new Exception("No work node for object:"+el);
+
+        var usages = XmlHelpers.GetUsagesNamesUniq(doc, el, true);
+        foreach(var n in usages.OrderBy(x=>x))
+        {
+            var newNode = XmlHelpers.GetOrCreateNode(treeHash, n, workNode);
+
+            workNode.Children.Add(newNode);
+            treeHash.Add(newNode);
+
+            if(!used.Contains(n))
+            {
+                q.Enqueue(n);
+                used.Add(n);
+            }
+        }
+    }
+
+    if (tree.Children.Count == 0)
+        Console.WriteLine("No usage");
+    else
+    {
+        foreach (var t in treeHash)
+        {
+            var id = xml.GetIdForName(doc, t.Name);
+            var type = xml.GetXXXBaseForId(doc, "Kind", id);
+            if (GetObjectType(type) != "Rule")
+                continue;
+
+            var displayName = xml.GetXXXForId(doc,"DisplayName", id);
+            var comment = xml.GetXXXForId(doc,"Comment", id);
+            var enabled = xml.GetXXXForId(doc,"Enabled", id);//No=2
+
+            Console.WriteLine((enabled == "2" ? "DISABLED " : "")
+            +(string.IsNullOrEmpty(displayName) ? t.Name : displayName) 
+            +(string.IsNullOrEmpty(comment) ? "" : (" :"+comment)) 
+            );
+        }
+    }
 }
 
 void ConditionsHandler()
