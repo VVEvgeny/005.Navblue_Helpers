@@ -342,11 +342,12 @@ namespace NameToDisplayName
 
             if(level>= maxDeepLevel && tree.Children.Count > 0)
             {
-                string linked=$"->(it goes deeper than:{maxDeepLevel})";
-                if(first)
-                    Console.WriteLine(tree.Name+linked);
+                //string linked=$"->(it goes deeper than:{maxDeepLevel})";
+                string linked = "";
+                if (first)
+                    Console.WriteLine(tree.Name + linked);
                 else
-                    Console.WriteLine(indent + (last ? intendLast : intendMid) + tree.Name+linked);
+                    Console.WriteLine(indent + (last ? intendLast : intendMid) + tree.Name + linked);
 
                 return;
             }

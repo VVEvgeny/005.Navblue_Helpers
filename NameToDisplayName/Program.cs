@@ -58,6 +58,9 @@ do
         case MenuItem.UsageTree:
             UsingsTreeHandler();
             break;
+        case MenuItem.UsageTreeLevel:
+            UsingsTreeLevelHandler();
+            break;
         case MenuItem.UsageTreeRules:
             UsageTreeRulesHandler();
             break;
@@ -267,6 +270,10 @@ string bookPretify(string name)
             return "RPA Company Rules";
         case "BreezeRules":
             return "MXY Company Rules";
+        case "EasternAirways_CompanyRules":
+            return "EZE Company Rules";
+        case "EasternAirways_PayrollCalculators":
+            return "EZE Payroll";
     }
 
     return name;
@@ -367,7 +374,7 @@ void BatchGetBooksHandler()
                 parent = xml.GetXXXBaseForId(doc, "ParentId", parent);
             }
         }
-        Console.WriteLine(results[name]);
+        Console.WriteLine(bookPretify(results[name]));
     }
 }
 
@@ -493,6 +500,67 @@ void UsingsTreeHandler()
         else
             xml.PrintTree(tree, 0, int.MaxValue, true);
 }
+
+void UsingsTreeLevelHandler()
+{
+    Console.Write("Enter name to find: ");
+    var name = Console.ReadLine();
+
+    Console.Write("Enter deep level (1 by default):");
+    var levelS = Console.ReadLine();
+    int level;
+    if (!int.TryParse(levelS, out level))
+        level = 1;
+
+        var q = new Queue<string>();
+        q.Enqueue(name);
+
+        var used = new HashSet<string>();
+
+        var tree = new Node(name);
+        var treeHash = new HashSet<Node>();
+        treeHash.Add(tree);
+
+        int cnt = 0;
+        while(q.Count > 0)
+        {
+            var el = q.Dequeue();
+            //Console.WriteLine("Element:"+el);
+
+            Node workNode = treeHash.Where(x=>x.Name == el).FirstOrDefault();
+                if(workNode == null) throw new Exception("No work node for object:"+el);
+
+            var usages = XmlHelpers.GetUsagesNamesUniq(doc, el, true);
+            //Console.WriteLine("t1, usages:"+usages.Count);
+            foreach(var n in usages.OrderBy(x=>x))
+            {
+                var newNode = XmlHelpers.GetOrCreateNode(treeHash, n, workNode);
+
+                workNode.Children.Add(newNode);
+                treeHash.Add(newNode);
+
+                if(!used.Contains(n))
+                {
+                    q.Enqueue(n);
+                    used.Add(n);
+                }
+            }
+
+/*
+            //debug
+            cnt++;
+            if(cnt >= 100) //100
+                break;
+                */
+        }
+
+        //PrintTree(tree, 0, 10);
+        if(tree.Children.Count == 0)
+            Console.WriteLine("No usage");
+        else
+            xml.PrintTree(tree, 0, level, true);
+}
+
 
 void UsageTreeRulesHandler()
 {
@@ -943,7 +1011,7 @@ void GetAllRulesHandler()
 
         Console.WriteLine((enabled == "2" ? "DISABLED " : "")
         +(string.IsNullOrEmpty(displayName) ? name : displayName) 
-        +(string.IsNullOrEmpty(comment) ? "" : (" :"+comment)) 
+        +(string.IsNullOrEmpty(comment) ? "" : (": "+comment)) 
         );
     }
 }
@@ -995,13 +1063,12 @@ void GetAllAccumulatedHandler()
             var comment = xml.GetXXXForId(doc, "Comment", id);
             var enabled = xml.GetXXXForId(doc, "Enabled", id);//No=2
 
-
             var appliesTo = xml.GetXXXForId(doc, "AppliesTo" , id);
             Console.WriteLine(
                 //name
-                //+(enabled == "2" ? "DISABLED " : "")
-                //+(string.IsNullOrEmpty(displayName)?" ":(";"+displayName))+";"+appliesTo
-                //+(string.IsNullOrEmpty(comment) ? ";" : (";" + comment))
+                (enabled == "2" ? "DISABLED " : "")
+                +(string.IsNullOrEmpty(displayName)?(name):(displayName))+";"+appliesTo
+                +(string.IsNullOrEmpty(comment) ? ";" : (";" + comment))
             );
         }
     }

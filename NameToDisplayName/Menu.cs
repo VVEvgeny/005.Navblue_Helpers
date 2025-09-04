@@ -29,6 +29,8 @@ namespace NameToDisplayName
         Usage,
         [Description("Get usage tree (where it used)")]
         UsageTree,
+        [Description("Get usage tree (select level) (where it used)")]
+        UsageTreeLevel,
         [Description("Get usage tree rules (where it used)")]
         UsageTreeRules,
         [Description("Get conditions by name")]
