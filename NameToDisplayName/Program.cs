@@ -85,11 +85,17 @@ do
         case MenuItem.GetAllRules:
             GetAllRulesHandler();
             break;
+        case MenuItem.GetAllDisabledRules:
+            GetAllDisabledRulesHandler();
+            break;
         case MenuItem.GetAllHistorical:
             GetAllHistoricalHandler();
             break;
         case MenuItem.GetAllAccumulated:
             GetAllAccumulatedHandler();
+            break;
+        case MenuItem.GetAllTables:
+            GetAllTablesHandler();
             break;
         case MenuItem.GetBook:
             GetBookHandler();
@@ -617,7 +623,7 @@ void UsageTreeRulesHandler()
 
             Console.WriteLine((enabled == "2" ? "DISABLED " : "")
             +(string.IsNullOrEmpty(displayName) ? t.Name : displayName) 
-            +(string.IsNullOrEmpty(comment) ? "" : (" :"+comment)) 
+            //+(string.IsNullOrEmpty(comment) ? "" : (" :"+comment)) 
             );
         }
     }
@@ -994,6 +1000,50 @@ void GetAllAccumulatorsHandler()
 void GetAllRulesHandler()
 {
     var ret = new HashSet<XmlNode>();
+    xml.CollectNodes(doc.ChildNodes, ret, "AvxMimerDefiniton", "Kind", "3");//rules
+
+    foreach (var n in ret)
+    {
+        var id = xml.FindNode(n.ChildNodes, "DefinitionId")!.InnerText;
+        var name = xml.GetNameForId(doc, id);
+        var displayName = xml.GetXXXForId(doc, "DisplayName", id);
+        var comment = xml.GetXXXForId(doc, "Comment", id);
+        var enabled = xml.GetXXXForId(doc, "Enabled", id);//No=2
+        /*
+                Console.WriteLine(id + " " + name 
+                + (string.IsNullOrEmpty(displayName) ? "" : (" ("+displayName+")")) 
+                + (enabled == "2" ? " DISABLED" : ""));
+                */
+
+        Console.WriteLine((enabled == "2" ? "DISABLED " : "")
+        + (string.IsNullOrEmpty(displayName) ? name : displayName)
+        + (string.IsNullOrEmpty(comment) ? "" : (": " + comment))
+        );
+    }
+}
+
+void GetAllTablesHandler()
+{
+    var ret = new HashSet<XmlNode>();
+    xml.CollectNodes(doc.ChildNodes, ret, "AvxMimerDefiniton","Kind","8");//DataTableInternal
+    
+    foreach(var n in ret)
+    {
+        var id = xml.FindNode(n.ChildNodes, "DefinitionId")!.InnerText;
+        var name = xml.GetNameForId(doc,id);
+        var displayName = xml.GetXXXForId(doc,"DisplayName", id);
+        //var comment = xml.GetXXXForId(doc,"Comment", id);
+
+        Console.WriteLine(
+        (string.IsNullOrEmpty(displayName) ? name : displayName) 
+        //+(string.IsNullOrEmpty(comment) ? "" : (": "+comment)) 
+        );
+    }
+}
+
+void GetAllDisabledRulesHandler()
+{
+    var ret = new HashSet<XmlNode>();
     xml.CollectNodes(doc.ChildNodes, ret, "AvxMimerDefiniton","Kind","3");//rules
     
     foreach(var n in ret)
@@ -1001,17 +1051,13 @@ void GetAllRulesHandler()
         var id = xml.FindNode(n.ChildNodes, "DefinitionId")!.InnerText;
         var name = xml.GetNameForId(doc,id);
         var displayName = xml.GetXXXForId(doc,"DisplayName", id);
-        var comment = xml.GetXXXForId(doc,"Comment", id);
+        //var comment = xml.GetXXXForId(doc,"Comment", id);
         var enabled = xml.GetXXXForId(doc,"Enabled", id);//No=2
-/*
-        Console.WriteLine(id + " " + name 
-        + (string.IsNullOrEmpty(displayName) ? "" : (" ("+displayName+")")) 
-        + (enabled == "2" ? " DISABLED" : ""));
-        */
+        if (enabled != "2")
+            continue;
 
-        Console.WriteLine((enabled == "2" ? "DISABLED " : "")
-        +(string.IsNullOrEmpty(displayName) ? name : displayName) 
-        +(string.IsNullOrEmpty(comment) ? "" : (": "+comment)) 
+        Console.WriteLine((string.IsNullOrEmpty(displayName) ? name : displayName) 
+        //+(string.IsNullOrEmpty(comment) ? "" : (": "+comment)) 
         );
     }
 }

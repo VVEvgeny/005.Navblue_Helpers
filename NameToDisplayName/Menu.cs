@@ -47,10 +47,14 @@ namespace NameToDisplayName
         GetAllAccumulators,
         [Description("Get All Rules")]
         GetAllRules,
+        [Description("Get All Disabled Rules")]
+        GetAllDisabledRules,
         [Description("Get All Historical")]
         GetAllHistorical,
         [Description("Get All Accumulated")]
         GetAllAccumulated,
+        [Description("Get All Tables")]
+        GetAllTables,
         [Description("Batch Get Books")]
         BatchGetBooks,
         [Description("Batch Get Types")]
