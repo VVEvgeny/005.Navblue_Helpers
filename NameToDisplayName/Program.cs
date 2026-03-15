@@ -1113,8 +1113,9 @@ void GetAllAccumulatedHandler()
             Console.WriteLine(
                 //name
                 (enabled == "2" ? "DISABLED " : "")
-                +(string.IsNullOrEmpty(displayName)?(name):(displayName))+";"+appliesTo
-                +(string.IsNullOrEmpty(comment) ? ";" : (";" + comment))
+                +name
+                //+(string.IsNullOrEmpty(displayName)?(name):(displayName))+";"+appliesTo
+                //+(string.IsNullOrEmpty(comment) ? ";" : (";" + comment))
             );
         }
     }

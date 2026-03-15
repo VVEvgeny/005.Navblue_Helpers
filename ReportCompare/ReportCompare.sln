@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportCompare", "ReportCompare.csproj", "{E291A549-D1E7-4939-F624-FFFB68E8F8CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E291A549-D1E7-4939-F624-FFFB68E8F8CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E291A549-D1E7-4939-F624-FFFB68E8F8CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E291A549-D1E7-4939-F624-FFFB68E8F8CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E291A549-D1E7-4939-F624-FFFB68E8F8CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7BA20DF8-4D5C-44D0-BFAC-846AD117798C}
+	EndGlobalSection
+EndGlobal
