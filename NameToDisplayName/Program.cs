@@ -193,12 +193,17 @@ string GetGroupForId(string id)
         while (!string.IsNullOrEmpty(parentId))
         {
             group = xml.GetXXXForId(doc, "Group", parentId);
-            if (!string.IsNullOrEmpty(group))
+            if (!string.IsNullOrEmpty(group)) //found group in parent
                 break;
-
-            parentId = xml.GetXXXBaseForId(doc, "ParentId", parentId);
-            if(!string.IsNullOrEmpty(parentId))
-                break;
+            try
+            {
+                parentId = xml.GetXXXBaseForId(doc, "ParentId", parentId);
+            }
+            catch
+            {
+                //no parent for this object
+                 break;
+            }
         }
     }
     return group;
@@ -257,7 +262,14 @@ string getPathById(string id, bool displayName = false)
         //Console.WriteLine($"Parent: " + parent);
 
         if (displayName)
-            sb.Insert(0, xml.GetXXXForId(doc,"DisplayName", parent) + (sb.Length == 0 ? "" : "->"));
+        {
+            //check if we have display name for this container, if yes use it in path, if not use name
+            var d = xml.GetXXXForId(doc,"DisplayName", parent);
+            if(!string.IsNullOrEmpty(d))
+                sb.Insert(0, d + (sb.Length == 0 ? "" : "->"));
+            else
+                sb.Insert(0, xml.GetNameForId(doc, parent)+(sb.Length == 0 ? "" : "->"));
+        }
         else
             sb.Insert(0, xml.GetNameForId(doc, parent)+(sb.Length == 0 ? "" : "->"));
     }
@@ -1137,17 +1149,20 @@ void GetAllAccumulatedWithGroupsHandler()
             var enabled = xml.GetXXXForId(doc, "Enabled", id);//No=2
             var group = GetGroupForId(id);
 
-            if(!string.IsNullOrEmpty(group) && !group.Contains("Roster"))
+            //tmp to find NOT ROSTER calcs
+            if(group != null && group.Contains("Roster"))
             {
                 continue;
             }
 
+            var path = getPathById(id, true);
             var appliesTo = xml.GetXXXForId(doc, "AppliesTo" , id);
             Console.WriteLine(
                 //name
                 (enabled == "2" ? "DISABLED " : "")
                 +name
                 +" | Group: "+( string.IsNullOrEmpty(group) ? "-" : group)
+                +" | Path: "+( string.IsNullOrEmpty(path) ? "-" : path)
                 //+(string.IsNullOrEmpty(displayName)?(name):(displayName))+";"+appliesTo
                 //+(string.IsNullOrEmpty(comment) ? ";" : (";" + comment))
             );
