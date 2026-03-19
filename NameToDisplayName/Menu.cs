@@ -53,6 +53,8 @@ namespace NameToDisplayName
         GetAllHistorical,
         [Description("Get All Accumulated")]
         GetAllAccumulated,
+        [Description("Get All Accumulated with Groups")]
+        GetAllAccumulatedWithGroups,
         [Description("Get All Tables")]
         GetAllTables,
         [Description("Batch Get Books")]

@@ -94,6 +94,9 @@ do
         case MenuItem.GetAllAccumulated:
             GetAllAccumulatedHandler();
             break;
+        case MenuItem.GetAllAccumulatedWithGroups:
+            GetAllAccumulatedWithGroupsHandler();
+            break;
         case MenuItem.GetAllTables:
             GetAllTablesHandler();
             break;
@@ -174,7 +177,31 @@ void GetEverythingHandler()
             Console.WriteLine("Path: " + path + (path == pathD ? "" : (" ("+pathD+")")));
         }
     }
-        
+
+    //group
+    var group= GetGroupForId(id);
+    Console.WriteLine("Group: " + (String.IsNullOrEmpty(group) ? "-" : group));
+}
+
+string GetGroupForId(string id)
+{
+    var group = xml.GetXXXForId(doc, "Group", id);
+    if (string.IsNullOrEmpty(group))
+    {
+        //go up and check if it's not inherited from container
+        var parentId = xml.GetXXXBaseForId(doc, "ParentId", id);
+        while (!string.IsNullOrEmpty(parentId))
+        {
+            group = xml.GetXXXForId(doc, "Group", parentId);
+            if (!string.IsNullOrEmpty(group))
+                break;
+
+            parentId = xml.GetXXXBaseForId(doc, "ParentId", parentId);
+            if(!string.IsNullOrEmpty(parentId))
+                break;
+        }
+    }
+    return group;
 }
 
 void DisplayNameHandler()
@@ -1085,6 +1112,44 @@ void GetAllHistoricalHandler()
                 //(enabled == "2" ? "DISABLED " : "")
             //+ (string.IsNullOrEmpty(displayName) ? name : displayName)
             //+ (string.IsNullOrEmpty(comment) ? "" : (" :" + comment))
+            );
+        }
+    }
+}
+
+void GetAllAccumulatedWithGroupsHandler()
+{
+    var ret = new HashSet<XmlNode>();
+    xml.CollectNodes(doc.ChildNodes, ret, "AvxMimerDefiniton","Kind","5");//Calculator
+    
+    foreach(var n in ret)
+    {
+        var id = xml.FindNode(n.ChildNodes, "DefinitionId")!.InnerText;
+        var flags = xml.GetXXXForId(doc, "Flags", id);
+        if (string.IsNullOrEmpty(flags))
+            continue;
+        var e = (AvxMimerDefinitionFlags)int.Parse(flags);
+        if ((e & AvxMimerDefinitionFlags.ExternalCache) == AvxMimerDefinitionFlags.ExternalCache)
+        {
+            var name = xml.GetNameForId(doc, id);
+            var displayName = xml.GetXXXForId(doc, "DisplayName", id);
+            var comment = xml.GetXXXForId(doc, "Comment", id);
+            var enabled = xml.GetXXXForId(doc, "Enabled", id);//No=2
+            var group = GetGroupForId(id);
+
+            if(!string.IsNullOrEmpty(group) && !group.Contains("Roster"))
+            {
+                continue;
+            }
+
+            var appliesTo = xml.GetXXXForId(doc, "AppliesTo" , id);
+            Console.WriteLine(
+                //name
+                (enabled == "2" ? "DISABLED " : "")
+                +name
+                +" | Group: "+( string.IsNullOrEmpty(group) ? "-" : group)
+                //+(string.IsNullOrEmpty(displayName)?(name):(displayName))+";"+appliesTo
+                //+(string.IsNullOrEmpty(comment) ? ";" : (";" + comment))
             );
         }
     }
